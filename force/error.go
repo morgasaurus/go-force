@@ -42,7 +42,12 @@ func (e ApiError) Error() string {
 }
 
 func (e ApiError) String() string {
-	return fmt.Sprintf("%#v", e)
+	var fields string
+	if e.Fields != nil {
+		fields = strings.Join(e.Fields, ",")
+	}
+	return fmt.Sprintf("Fields: %v | Message: %v | ErrorCode: %v | ErrorName: %v | ErrorDescription: %v",
+		fields, e.Message, e.ErrorCode, e.ErrorName, e.ErrorDescription)
 }
 
 func (e ApiError) Validate() bool {

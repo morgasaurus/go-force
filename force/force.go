@@ -153,23 +153,12 @@ type ForceApiLogger interface {
 // can easily be written for other logging packages (e.g., the
 // golang-sanctioned glog framework).
 func (forceApi *ForceApi) TraceOn(prefix string, logger ForceApiLogger) {
+	forceApi.logPrefix = prefix
 	forceApi.logger = logger
-	if prefix == "" {
-		forceApi.logPrefix = prefix
-	} else {
-		forceApi.logPrefix = fmt.Sprintf("%s ", prefix)
-	}
 }
 
 // TraceOff turns off tracing. It is idempotent.
 func (forceApi *ForceApi) TraceOff() {
 	forceApi.logger = nil
 	forceApi.logPrefix = ""
-}
-
-func (forceApi *ForceApi) trace(name string, value interface{}, format string) {
-	if forceApi.logger != nil {
-		logMsg := "%s%s " + format + "\n"
-		forceApi.logger.Printf(logMsg, forceApi.logPrefix, name, value)
-	}
 }

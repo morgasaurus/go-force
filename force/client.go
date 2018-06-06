@@ -7,8 +7,9 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"reflect"
 
-	"github.com/nimajalali/go-force/forcejson"
+	"github.com/morgasaurus/go-force/forcejson"
 )
 
 const (
@@ -51,6 +52,8 @@ func (forceApi *ForceApi) request(method, path string, params url.Values, payloa
 	if err := forceApi.oauth.Validate(); err != nil {
 		return fmt.Errorf("Error creating %v request: %v", method, err)
 	}
+
+	// fmt.Println(getStr(payload))
 
 	// Build Uri
 	var uri bytes.Buffer
@@ -103,7 +106,6 @@ func (forceApi *ForceApi) request(method, path string, params url.Values, payloa
 	if err != nil {
 		return fmt.Errorf("Error reading response bytes: %v", err)
 	}
-	forceApi.traceResponseBody(respBytes)
 
 	// Attempt to parse response into out
 	var objectUnmarshalErr error
@@ -128,7 +130,7 @@ func (forceApi *ForceApi) request(method, path string, params url.Values, payloa
 
 				return forceApi.request(method, path, params, payload, out)
 			}
-
+			forceApi.traceErrors(apiErrors)
 			return apiErrors
 		}
 	}
@@ -143,19 +145,37 @@ func (forceApi *ForceApi) request(method, path string, params url.Values, payloa
 }
 
 func (forceApi *ForceApi) traceRequest(req *http.Request) {
-	if forceApi.logger != nil {
-		forceApi.trace("Request:", req, "%v")
+	if forceApi.logger == nil {
+		return
 	}
+
+	forceApi.logger.Printf("[%v] Request %v %v\n", forceApi.logPrefix, req.Method, req.URL.String())
 }
 
 func (forceApi *ForceApi) traceResponse(resp *http.Response) {
-	if forceApi.logger != nil {
-		forceApi.trace("Response:", resp, "%v")
+	if forceApi.logger == nil {
+		return
 	}
+
+	forceApi.logger.Printf("[%v] Response %v\n", forceApi.logPrefix, resp.Status)
 }
 
-func (forceApi *ForceApi) traceResponseBody(body []byte) {
-	if forceApi.logger != nil {
-		forceApi.trace("Response Body:", string(body), "%s")
+func (forceApi *ForceApi) traceErrors(errs ApiErrors) {
+	if forceApi.logger == nil {
+		return
 	}
+
+	forceApi.logger.Printf("[%v] Received API errors\n", forceApi.logPrefix)
+	forceApi.logger.Printf("%v\n", errs.String())
+}
+
+func getStr(obj interface{}) string {
+	if obj == nil {
+		return "<nil>"
+	}
+	res := reflect.ValueOf(obj)
+	for res.Kind() == reflect.Ptr && !res.IsNil() {
+		res = reflect.Indirect(res)
+	}
+	return fmt.Sprintf("%v", res.Interface())
 }
