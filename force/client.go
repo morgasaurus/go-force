@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -96,9 +95,6 @@ func (forceApi *ForceApi) request(method, path string, params url.Values, payloa
 	defer resp.Body.Close()
 	forceApi.traceResponse(resp)
 
-	// TODO: DELETE!
-	log.Println(fmt.Sprintf("[SalesForce] %v %v Response %v %v", req.Method, req.URL.String(), resp.StatusCode, http.StatusText(resp.StatusCode)))
-
 	// Sometimes the force API returns no body, we should catch this early
 	if resp.StatusCode == http.StatusNoContent {
 		return nil
@@ -108,9 +104,6 @@ func (forceApi *ForceApi) request(method, path string, params url.Values, payloa
 	if err != nil {
 		return fmt.Errorf("Error reading response bytes: %v", err)
 	}
-
-	// TODO: DELETE!
-	log.Println(string(respBytes))
 
 	// Attempt to parse response into out
 	var objectUnmarshalErr error

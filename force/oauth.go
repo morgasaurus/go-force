@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -91,10 +90,6 @@ func (oauth *forceOauth) Authenticate() error {
 	if err != nil {
 		return fmt.Errorf("Error reading authentication response bytes: %v", err)
 	}
-
-	// TODO: DELETE!
-	log.Println(fmt.Sprintf("[SalesForce] Auth Response %v %v", resp.StatusCode, http.StatusText(resp.StatusCode)))
-	log.Println(string(respBytes))
 
 	// Attempt to parse response as a force.com api error
 	apiError := &ApiError{}
