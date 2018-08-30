@@ -97,7 +97,7 @@ func (forceApi *ForceApi) request(method, path string, params url.Values, payloa
 	forceApi.traceResponse(resp)
 
 	// TODO: DELETE!
-	log.Println(fmt.Sprintf("[SalesForce] Response %v %v", resp.StatusCode, http.StatusText(resp.StatusCode)))
+	log.Println(fmt.Sprintf("[SalesForce] %v %v Response %v %v", req.Method, req.URL.String(), resp.StatusCode, http.StatusText(resp.StatusCode)))
 
 	// Sometimes the force API returns no body, we should catch this early
 	if resp.StatusCode == http.StatusNoContent {
